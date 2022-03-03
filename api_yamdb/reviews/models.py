@@ -8,7 +8,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, username, email):
+    def create_user(self, username, email, password=None, role='user', bio=None):
         if username is None:
             raise TypeError('Users must have a username.')
         if email is None:
@@ -19,7 +19,9 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email),
             confirmation_code=confirmation_code
         )
-        user.set_unusable_password()
+        user.role(role)
+        user.set_password(password)
+        user.bio(bio)
         user.save()
         send_mail(
             username,
@@ -30,14 +32,18 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractUser, PermissionsMixin):
+ROLE_CHOICES = (
+    ('user', 'User'),
+    ('moderator', 'Moderator'),
+    ('admin', 'Admin'),
+)
 
-    ROLE_CHOICES = (
-        ('a', 'User'),
-        ('b', 'Moderator'),
-        ('c', 'Admin'),
+
+class User(AbstractUser, PermissionsMixin):
+    role = models.CharField(
+        max_length=20, choices=ROLE_CHOICES, default='user'
     )
-    role = models.CharField(max_length=11, choices=ROLE_CHOICES, default='a')
+    bio = models.TextField(blank=True)
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(unique=True)
     confirmation_code = models.CharField(max_length=10)
@@ -51,7 +57,6 @@ class User(AbstractUser, PermissionsMixin):
     objects = UserManager()
 
     def __str__(self):
-        """ Строковое представление модели (отображается в консоли) """
         return self.username
 
 
