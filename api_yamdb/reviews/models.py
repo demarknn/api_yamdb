@@ -29,6 +29,15 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser, PermissionsMixin):
+
+    ROLE_CHOICES = (
+        ('a', 'User'),
+        ('b', 'Moderator'),
+        ('c', 'Admin'),
+    )
+
+    role = models.CharField(max_length=11, choices=ROLE_CHOICES, default='a')
+
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(unique=True)
     confirmation_code = models.CharField(max_length=10)
