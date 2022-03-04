@@ -6,9 +6,16 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
+ROLE_CHOICES = (
+    ('user', 'User'),
+    ('moderator', 'Moderator'),
+    ('admin', 'Admin'),
+)
+
+
 class UserManager(BaseUserManager):
 
-    def create_user(self, username, email, password=None, role='user', bio=None):
+    def create_user(self, username, email, password=None, role=None, bio=None):
         if username is None:
             raise TypeError('Users must have a username.')
         if email is None:
@@ -19,9 +26,9 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email),
             confirmation_code=confirmation_code
         )
-        user.role(role)
+        user.role
         user.set_password(password)
-        user.bio(bio)
+        user.bio
         user.save()
         send_mail(
             username,
@@ -31,12 +38,30 @@ class UserManager(BaseUserManager):
         )
         return user
 
-
-ROLE_CHOICES = (
-    ('user', 'User'),
-    ('moderator', 'Moderator'),
-    ('admin', 'Admin'),
-)
+    def create_superuser(
+            self, username, email, password=None, role=None, bio=None):
+        if username is None:
+            raise TypeError('Users must have a username.')
+        if email is None:
+            raise TypeError('Users must have an email address.')
+        confirmation_code = str(random.randint(1000, 9999))
+        user = self.model(
+            username=username,
+            email=self.normalize_email(email),
+            confirmation_code=confirmation_code
+        )
+        user.role
+        user.set_password(password)
+        user.bio
+        user.is_superuser = True
+        user.save()
+        send_mail(
+            username,
+            confirmation_code,
+            'from@yamdb.ru',
+            [email],
+        )
+        return user
 
 
 class User(AbstractUser, PermissionsMixin):

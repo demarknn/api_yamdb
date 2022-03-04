@@ -5,12 +5,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
+from rest_framework import filters
 
 from reviews.models import Reviews, Title, User
 from api.serializers import (
     CommentSerializer,
     ReviewsSerializer,
     RegistrationSerializer,
+    UsersSerializer,
     LoginSerializer
 )
 from api.permissions import IsAuthorOrModeratorOrAdminOrReadOnly
@@ -59,7 +61,7 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class LoginView(APIView):
@@ -86,4 +88,12 @@ class LoginView(APIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         },
-            status=status.HTTP_201_CREATED)
+            status=status.HTTP_200_OK)
+
+
+class UsersViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsersSerializer
+    #permission_classes = [permissions.AllowAny, ]
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('username',)

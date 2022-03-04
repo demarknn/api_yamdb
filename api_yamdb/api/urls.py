@@ -1,7 +1,8 @@
 from rest_framework.routers import SimpleRouter
 from django.urls import include, path
 from .views import (
-    ReviewsViewSet, CommentsViewSet, RegistrationAPIView, LoginView
+    ReviewsViewSet, CommentsViewSet, RegistrationAPIView,
+    LoginView, UsersViewSet
 )
 
 
@@ -16,9 +17,14 @@ v1_router.register(
     CommentsViewSet,
     basename='comments'
 )
+v1_router.register(
+    'users',
+    UsersViewSet,
+    basename='comments'
+)
 
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
-    path('v1/singup/', RegistrationAPIView.as_view()),
+    path('v1/auth/signup/', RegistrationAPIView.as_view()),
     path('v1/auth/token/', LoginView.as_view(), name='login'),
 ]
