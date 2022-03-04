@@ -20,7 +20,7 @@ v1_router.register(
 v1_router.register(
     'users',
     UsersViewSet,
-    basename='comments'
+    basename='users'
 )
 
 urlpatterns = [

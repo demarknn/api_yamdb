@@ -42,7 +42,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if 'me' == value.lower():
-            raise serializers.ValidationError("Нельзя создавать пользователя ME")
+            raise serializers.ValidationError(
+                "Нельзя создавать пользователя ME"
+            )
+        if value == '':
+            raise serializers.ValidationError("Нужно все заполнить")
+        return value
+
+    def validate_email(self, value):
+        if value == '':
+            raise serializers.ValidationError("Нужно все заполнить")
         return value
 
 
@@ -62,6 +71,10 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class UsersSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
-        fields = '__all__'
+        fields = (
+            'username', 'bio', 'email',
+            'first_name', 'last_name', 'role'
+        )

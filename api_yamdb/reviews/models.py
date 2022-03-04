@@ -15,17 +15,18 @@ ROLE_CHOICES = (
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, username, email, password=None, role=None, bio=None):
-        if username is None:
-            raise TypeError('Users must have a username.')
-        if email is None:
-            raise TypeError('Users must have an email address.')
+    def create_user(
+            self, username, email, password=None, role=None, bio=None):
         confirmation_code = str(random.randint(1000, 9999))
         user = self.model(
             username=username,
             email=self.normalize_email(email),
             confirmation_code=confirmation_code
         )
+        if role == 'admin':
+            user.is_superuser = True
+        if role == 'moderator':
+            user.is_staff = True
         user.role
         user.set_password(password)
         user.bio
@@ -40,10 +41,6 @@ class UserManager(BaseUserManager):
 
     def create_superuser(
             self, username, email, password=None, role=None, bio=None):
-        if username is None:
-            raise TypeError('Users must have a username.')
-        if email is None:
-            raise TypeError('Users must have an email address.')
         confirmation_code = str(random.randint(1000, 9999))
         user = self.model(
             username=username,
@@ -68,10 +65,11 @@ class User(AbstractUser, PermissionsMixin):
     role = models.CharField(
         max_length=20, choices=ROLE_CHOICES, default='user'
     )
+    password = models.CharField(max_length=200, default='password')
     bio = models.TextField(blank=True)
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(unique=True)
-    confirmation_code = models.CharField(max_length=10)
+    confirmation_code = models.CharField(max_length=10, default='0000')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

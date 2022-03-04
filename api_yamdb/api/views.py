@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from rest_framework import filters
 from rest_framework.pagination import LimitOffsetPagination
+from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import Reviews, Title, User
 from api.serializers import (
@@ -16,7 +17,9 @@ from api.serializers import (
     UsersSerializer,
     LoginSerializer
 )
-from api.permissions import IsAuthorOrModeratorOrAdminOrReadOnly
+from api.permissions import (
+    IsAuthorOrModeratorOrAdminOrReadOnly, UserPermission, AdminPermission
+)
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
@@ -95,7 +98,27 @@ class LoginView(APIView):
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    # permission_classes = [permissions.AllowAny, ]
-    filter_backends = (filters.SearchFilter, )
+    permission_classes = [AdminPermission, ]
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
     search_fields = ('username',)
+    lookup_field = 'username'
     pagination_class = LimitOffsetPagination
+
+
+
+
+    # def get_permissions(self):
+    #     if self.action == 'list':
+    #         permission_classes = [UserPermission]
+    #     elif self.action == 'create':
+    #         permission_classes = [AdminPermission]
+    #     elif self.action == 'retrieve':
+    #         permission_classes = [AdminPermission]
+    #     elif self.action == 'update':
+    #         permission_classes = [AdminPermission]
+    #     elif self.action == 'partial_update':
+    #         permission_classes = [AdminPermission]
+    #     elif self.action == 'destroy':
+    #         permission_classes = [AdminPermission]
+    #     return [permission() for permission in permission_classes]
+
