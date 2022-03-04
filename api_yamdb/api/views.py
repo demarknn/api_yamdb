@@ -95,7 +95,7 @@ class LoginView(APIView):
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    #permission_classes = [permissions.AllowAny, ]
+    # permission_classes = [permissions.AllowAny, ]
     filter_backends = (filters.SearchFilter, )
     search_fields = ('username',)
     pagination_class = LimitOffsetPagination

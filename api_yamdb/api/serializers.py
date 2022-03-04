@@ -40,6 +40,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
+    def validate_username(self, value):
+        if 'me' == value.lower():
+            raise serializers.ValidationError("Нельзя создавать пользователя ME")
+        return value
+
 
 class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)
