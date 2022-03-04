@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from rest_framework import filters
+from rest_framework.pagination import LimitOffsetPagination
 
 from reviews.models import Reviews, Title, User
 from api.serializers import (
@@ -97,3 +98,4 @@ class UsersViewSet(viewsets.ModelViewSet):
     #permission_classes = [permissions.AllowAny, ]
     filter_backends = (filters.SearchFilter, )
     search_fields = ('username',)
+    pagination_class = LimitOffsetPagination
