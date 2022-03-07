@@ -1,8 +1,14 @@
-from django.urls import path
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+from django.urls import path, include
+from rest_framework.routers import SimpleRouter
+
+from .views import CategoryViewSet, GenreViewSet, TitleViewSet
 
 
-@api_view(['GET', 'DELETE', 'POST'])
-def genre(request):
-    pass
+router_v1 = SimpleRouter()
+router_v1.register('categories', CategoryViewSet)
+router_v1.register('genres', GenreViewSet)
+router_v1.register('genres', TitleViewSet)
+
+urlpatterns = [
+    path('', include(router_v1.urls)),
+]
