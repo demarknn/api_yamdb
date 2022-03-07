@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import filters
 from rest_framework.pagination import LimitOffsetPagination
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
 
 from reviews.models import Reviews, Title, User
 from api.serializers import (
@@ -104,21 +105,16 @@ class UsersViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     pagination_class = LimitOffsetPagination
 
-
-
-
-    # def get_permissions(self):
-    #     if self.action == 'list':
-    #         permission_classes = [UserPermission]
-    #     elif self.action == 'create':
-    #         permission_classes = [AdminPermission]
-    #     elif self.action == 'retrieve':
-    #         permission_classes = [AdminPermission]
-    #     elif self.action == 'update':
-    #         permission_classes = [AdminPermission]
-    #     elif self.action == 'partial_update':
-    #         permission_classes = [AdminPermission]
-    #     elif self.action == 'destroy':
-    #         permission_classes = [AdminPermission]
-    #     return [permission() for permission in permission_classes]
-
+    @action(detail=False, methods=['GET', 'PATCH'], url_path='me',
+            permission_classes=(UserPermission,))
+    def me(self, request):
+        userself = User.objects.get(username=self.request.user)
+        if request.method == 'GET':
+            serializer = self.get_serializer(userself)
+            return Response(serializer.data)
+        if request.method == 'PATCH':
+            serializer = self.get_serializer(userself, data=request.data,
+                                             partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)

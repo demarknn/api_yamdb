@@ -18,9 +18,6 @@ class UserPermission(BasePermission):
         if obj.author == request.user:
             return True
 
-        if request.user.is_staff and request.method not in self.edit_methods:
-            return True
-
 
 class AdminPermission(BasePermission):
 
@@ -35,10 +32,28 @@ class AdminPermission(BasePermission):
 
 class ModeratorPermission(BasePermission):
 
-    def has_object_permission(self, request, view, obj):
-        user = request.user
-        if user.role == 'moderator':
+    def has_permission(self, request, view):
+        if request.user.is_staff:
             return True
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_staff:
+            return True
+
+
+class MeUserPermission(BasePermission):
+
+    def has_permission(self, request, view):
+        return (
+            request.method in SAFE_METHODS
+            or request.user.is_authenticated
+        )
+
+    def has_object_permission(self, request, view, obj):
+        return (
+            request.method in SAFE_METHODS
+            or obj.author == request.user or request.user.is_authenticated
+        )
 
 
 class IsAuthorOrModeratorOrAdminOrReadOnly(BasePermission):
