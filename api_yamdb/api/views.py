@@ -17,16 +17,12 @@ from api.serializers import (
     ReviewsSerializer,
     RegistrationSerializer,
     UsersSerializer,
-<<<<<<< HEAD
-    UsersMeSerializer,
-    LoginSerializer
-=======
     LoginSerializer,
     GenreSerializer,
     CategorySerializer,
     TitlesGetSerializer,
-    TitlesPostSerializer
->>>>>>> 08fe579a8886d95e822409c9f6ebaa455dc1cf38
+    TitlesPostSerializer,
+    UsersMeSerializer
 )
 from api.permissions import (
     UserPermission, 

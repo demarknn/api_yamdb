@@ -142,8 +142,6 @@ class TitlesGetSerializer(serializers.ModelSerializer):
 
 
 class UsersSerializer(serializers.ModelSerializer):
-<<<<<<< HEAD
-=======
     class Meta:
         model = User
         fields = (
@@ -157,7 +155,6 @@ class UsersMeSerializer(serializers.ModelSerializer):
     email = serializers.CharField(required=True)
     role = serializers.StringRelatedField(read_only=True)
 
->>>>>>> 3d3632af8e5ab3a30b84e2e5d3362a66bd807341
     class Meta:
         model = User
         fields = (
