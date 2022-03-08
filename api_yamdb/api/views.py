@@ -28,8 +28,7 @@ from api.permissions import (
     UserPermission,
     AdminPermission,
     AdminOrReadOnly,
-    ModeratorPermission,
-    MeUserPermission
+    ModeratorPermission
 )
 
 
@@ -38,14 +37,14 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     permission_classes = [
         AdminPermission,
         ModeratorPermission,
-        MeUserPermission
+        UserPermission
     ]
 
     def get_title(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
         return title
 
-    def get_reviews(self):
+    def get_queryset(self):
         title = self.get_title()
         return title.reviews
 
@@ -59,7 +58,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
     permission_classes = [
         AdminPermission,
         ModeratorPermission,
-        MeUserPermission
+        UserPermission
     ]
 
     def get_review(self):
