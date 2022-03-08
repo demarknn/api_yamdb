@@ -2,7 +2,11 @@ from rest_framework.routers import SimpleRouter
 from django.urls import include, path
 from .views import (
     ReviewsViewSet, CommentsViewSet, RegistrationAPIView,
+<<<<<<< HEAD
     LoginView, UsersViewSet
+=======
+    LoginView, UsersViewSet, CategoryViewSet, GenreViewSet, TitleViewSet
+>>>>>>> 08fe579a8886d95e822409c9f6ebaa455dc1cf38
 )
 
 
@@ -12,6 +16,9 @@ v1_router.register(
     ReviewsViewSet,
     basename='reviews'
 )
+v1_router.register('categories', CategoryViewSet)
+v1_router.register('genres', GenreViewSet)
+v1_router.register('titles', TitleViewSet)
 v1_router.register(
     r'^titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentsViewSet,
