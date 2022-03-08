@@ -129,7 +129,7 @@ class Reviews(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     score = models.IntegerField(
-        validators=[MaxValueValidator(5), MinValueValidator(1)]
+        validators=[MaxValueValidator(10), MinValueValidator(1)]
     )
 
     class Meta:
