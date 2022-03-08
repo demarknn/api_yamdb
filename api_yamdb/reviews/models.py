@@ -122,6 +122,7 @@ class Title(models.Model):
 
 
 class Reviews(models.Model):
+    id = models.AutoField(primary_key=True)
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='reviews')
     author = models.ForeignKey(
@@ -142,6 +143,7 @@ class Reviews(models.Model):
 
 
 class Comments(models.Model):
+    id = models.AutoField(primary_key=True)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
     review = models.ForeignKey(

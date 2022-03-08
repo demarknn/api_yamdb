@@ -21,23 +21,20 @@ from api.serializers import (
     GenreSerializer,
     CategorySerializer,
     TitlesGetSerializer,
-    TitlesPostSerializer,
     UsersMeSerializer
 )
 from api.permissions import (
     UserPermission,
     AdminPermission,
     AdminOrReadOnly,
-    ModeratorPermission
+    AdminModeratorAuthorPermission
 )
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewsSerializer
     permission_classes = [
-        AdminPermission,
-        ModeratorPermission,
-        UserPermission
+        AdminModeratorAuthorPermission
     ]
 
     def get_title(self):
@@ -56,9 +53,7 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [
-        AdminPermission,
-        ModeratorPermission,
-        UserPermission
+        AdminModeratorAuthorPermission
     ]
 
     def get_review(self):
@@ -208,13 +203,14 @@ class CategoryViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(
-        rating=Avg('reviews__score')).order_by('id')
+    queryset = Title.objects.all()
+    serializer_class = TitlesGetSerializer
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category', 'genre', 'name', 'year')
 
-    def get_serializer_class(self):
-        if self.action in ['list', 'retrieve']:
-            return TitlesGetSerializer
-        return TitlesPostSerializer
+    def get_rating(self, obj):
+        rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
+        if not rating:
+            return rating
+        return round(rating, 1)

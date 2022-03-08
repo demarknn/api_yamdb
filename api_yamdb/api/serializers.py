@@ -11,6 +11,17 @@ from reviews.models import Comments, Reviews, User, Genre, Category, Title
 class ReviewsSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
 
+    class Meta:
+        fields = '__all__'
+        model = Reviews
+        read_only_field = ('title')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Reviews.objects.all(),
+                fields=('title', 'author')
+            )
+        ]
+
     def validate(self, data):
         if self.context['request'].method != 'POST':
             return data
@@ -30,17 +41,6 @@ class ReviewsSerializer(serializers.ModelSerializer):
                 'Оценкой может быть целое число в диапазоне от 1 до 10.'
             )
         return value
-
-    class Meta:
-        fields = '__all__'
-        model = Reviews
-        read_only_field = ('title')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Reviews.objects.all(),
-                fields=('title', 'author')
-            )
-        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
