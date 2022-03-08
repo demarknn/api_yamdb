@@ -1,8 +1,11 @@
+import re
+import datetime as dt
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 
-from reviews.models import Comments, Reviews, User, Genre
+from reviews.models import Comments, Reviews, User, Genre, Category, Title
 
 
 class ReviewsSerializer(serializers.ModelSerializer):
@@ -68,6 +71,74 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ('name', 'slug')
+    
+    def validate_slug(self, value):
+        if (re.match('^[-a-zA-Z0-9_]+$', value) is not None
+            and len(value) < 51):
+            return value
+        raise serializers.ValidationError(
+            "Slug should contain only azAZ or numbers and 50 length"
+        )
+
+
+    def validate_name(self, value):
+        if len(value) < 257:
+            return value
+        raise serializers.ValidationError(
+            "Name should be 256 length"
+        )
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
+
+    def validate_slug(self, value):
+        if (re.match('^[-a-zA-Z0-9_]+$', value) is not None
+            and len(value) < 51):
+            return value
+        raise serializers.ValidationError(
+            "Slug should contain only azAZ or numbers and 50 length"
+        )
+
+
+    def validate_name(self, value):
+        if len(value) < 257:
+            return value
+        raise serializers.ValidationError(
+            "Name should be 256 length"
+        )
+
+
+class TitlesPostSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True)
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug')
+    class Meta:
+        fields = '__all__'
+        model = Title
+    
+
+    def validate_year(self, value):
+        if dt.date.today().year < value:
+            raise serializers.ValidationError(
+                'Wrong year'
+            )
+
+
+class TitlesGetSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
+    rating = serializers.IntegerField()
+    class Meta():
+        fields = '__all__'
+        read_only_fields = ('id',)
+        model = Title
 
 
 class UsersSerializer(serializers.ModelSerializer):
