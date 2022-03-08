@@ -1,6 +1,5 @@
 import re
 import datetime as dt
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
@@ -71,15 +70,15 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ('name', 'slug')
-    
+
     def validate_slug(self, value):
-        if (re.match('^[-a-zA-Z0-9_]+$', value) is not None
-            and len(value) < 51):
+        if (
+            re.match('^[-a-zA-Z0-9_]+$', value) is not None and len(value) < 51
+        ):
             return value
         raise serializers.ValidationError(
             "Slug should contain only azAZ or numbers and 50 length"
         )
-
 
     def validate_name(self, value):
         if len(value) < 257:
@@ -95,13 +94,13 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ('name', 'slug')
 
     def validate_slug(self, value):
-        if (re.match('^[-a-zA-Z0-9_]+$', value) is not None
-            and len(value) < 51):
+        if (
+            re.match('^[-a-zA-Z0-9_]+$', value) is not None and len(value) < 51
+        ):
             return value
         raise serializers.ValidationError(
             "Slug should contain only azAZ or numbers and 50 length"
         )
-
 
     def validate_name(self, value):
         if len(value) < 257:
@@ -119,10 +118,10 @@ class TitlesPostSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
         slug_field='slug')
+
     class Meta:
         fields = '__all__'
         model = Title
-    
 
     def validate_year(self, value):
         if dt.date.today().year < value:
@@ -135,6 +134,7 @@ class TitlesGetSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
     rating = serializers.IntegerField()
+
     class Meta():
         fields = '__all__'
         read_only_fields = ('id',)

@@ -25,7 +25,7 @@ from api.serializers import (
     UsersMeSerializer
 )
 from api.permissions import (
-    UserPermission, 
+    UserPermission,
     AdminPermission,
     AdminOrReadOnly,
     ModeratorPermission,
@@ -35,7 +35,11 @@ from api.permissions import (
 
 class ReviewsViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewsSerializer
-    permission_classes = [AdminPermission, ModeratorPermission, MeUserPermission]
+    permission_classes = [
+        AdminPermission,
+        ModeratorPermission,
+        MeUserPermission
+    ]
 
     def get_title(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
@@ -52,7 +56,11 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [AdminPermission, ModeratorPermission, MeUserPermission]
+    permission_classes = [
+        AdminPermission,
+        ModeratorPermission,
+        MeUserPermission
+    ]
 
     def get_review(self):
         review = get_object_or_404(Reviews, pk=self.kwargs.get("review_id"))
@@ -167,7 +175,7 @@ class GenreViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
     lookup_field = 'slug'
 
 
-class CategoryViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin, 
+class CategoryViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
                       mixins.ListModelMixin, mixins.RetrieveModelMixin,
                       viewsets.GenericViewSet):
     queryset = Category.objects.all()
@@ -183,7 +191,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         rating=Avg('reviews__score')).order_by('id')
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('category', 'genre', 'name', 'year') 
+    filterset_fields = ('category', 'genre', 'name', 'year')
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
