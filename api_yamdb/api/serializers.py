@@ -71,6 +71,18 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class UsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'username', 'bio', 'email',
+            'first_name', 'last_name', 'role'
+        )
+
+
+class UsersMeSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    email = serializers.CharField(required=True)
+    role = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = User
@@ -78,3 +90,4 @@ class UsersSerializer(serializers.ModelSerializer):
             'username', 'bio', 'email',
             'first_name', 'last_name', 'role'
         )
+        read_only_fields = ('role',)
