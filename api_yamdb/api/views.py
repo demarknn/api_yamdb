@@ -17,11 +17,16 @@ from api.serializers import (
     ReviewsSerializer,
     RegistrationSerializer,
     UsersSerializer,
+<<<<<<< HEAD
+    UsersMeSerializer,
+    LoginSerializer
+=======
     LoginSerializer,
     GenreSerializer,
     CategorySerializer,
     TitlesGetSerializer,
     TitlesPostSerializer
+>>>>>>> 08fe579a8886d95e822409c9f6ebaa455dc1cf38
 )
 from api.permissions import (
     UserPermission, 
@@ -108,6 +113,32 @@ class LoginView(APIView):
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
+    permission_classes = [AdminPermission, ]
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
+    search_fields = ('username',)
+    lookup_field = 'username'
+    pagination_class = LimitOffsetPagination
+
+    @action(detail=False, methods=['GET', 'PATCH'], url_path='me',
+            permission_classes=(UserPermission,))
+    def me(self, request):
+        serializer = UsersMeSerializer(request.user)
+        userself = User.objects.get(username=self.request.user)
+        if request.method == 'GET':
+            serializer = self.get_serializer(userself)
+            return Response(serializer.data)
+        if request.method == 'PATCH':
+            serializer = UsersMeSerializer(
+                userself, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UsersMeViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsersMeSerializer
     permission_classes = [AdminPermission, ]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
     search_fields = ('username',)

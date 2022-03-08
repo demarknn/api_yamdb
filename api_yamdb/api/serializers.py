@@ -142,9 +142,26 @@ class TitlesGetSerializer(serializers.ModelSerializer):
 
 
 class UsersSerializer(serializers.ModelSerializer):
+<<<<<<< HEAD
+=======
     class Meta:
         model = User
         fields = (
             'username', 'bio', 'email',
             'first_name', 'last_name', 'role'
         )
+
+
+class UsersMeSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    email = serializers.CharField(required=True)
+    role = serializers.StringRelatedField(read_only=True)
+
+>>>>>>> 3d3632af8e5ab3a30b84e2e5d3362a66bd807341
+    class Meta:
+        model = User
+        fields = (
+            'username', 'bio', 'email',
+            'first_name', 'last_name', 'role'
+        )
+        read_only_fields = ('role',)
