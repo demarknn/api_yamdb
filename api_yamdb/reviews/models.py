@@ -104,7 +104,7 @@ class Genre(models.Model):
 class Title(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField('Жанр', max_length=256, unique=True)
-    year = models.IntegerField('Год выхода')
+    year = models.IntegerField('Год выхода', null=True)
     description = models.CharField(
         'Описание', max_length=512, blank=True, null=True
     )
