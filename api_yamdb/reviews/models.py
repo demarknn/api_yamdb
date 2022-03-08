@@ -113,7 +113,7 @@ class Title(models.Model):
         null=True,
         related_name='genres'
     )
-    Category = models.ForeignKey(
+    category = models.ForeignKey(
         Category,
         null=True,
         on_delete=models.SET_NULL,

@@ -142,7 +142,6 @@ class TitlesGetSerializer(serializers.ModelSerializer):
 
 
 class UsersSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = (
