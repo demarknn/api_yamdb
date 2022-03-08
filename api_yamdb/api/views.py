@@ -24,14 +24,17 @@ from api.serializers import (
     TitlesPostSerializer
 )
 from api.permissions import (
-    IsAuthorOrModeratorOrAdminOrReadOnly, UserPermission, AdminPermission,
-    AdminOrReadOnly
+    UserPermission, 
+    AdminPermission,
+    AdminOrReadOnly,
+    ModeratorPermission,
+    MeUserPermission
 )
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewsSerializer
-    permission_classes = [IsAuthorOrModeratorOrAdminOrReadOnly, ]
+    permission_classes = [AdminPermission, ModeratorPermission, MeUserPermission]
 
     def get_title(self):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
@@ -48,7 +51,7 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrModeratorOrAdminOrReadOnly, ]
+    permission_classes = [AdminPermission, ModeratorPermission, MeUserPermission]
 
     def get_review(self):
         review = get_object_or_404(Reviews, pk=self.kwargs.get("review_id"))

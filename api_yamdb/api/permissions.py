@@ -56,19 +56,6 @@ class MeUserPermission(BasePermission):
         )
 
 
-class IsAuthorOrModeratorOrAdminOrReadOnly(BasePermission):
-
-    def has_object_permission(self, request, view, obj):
-        user = request.user
-        return (
-            request.method in SAFE_METHODS
-            or obj.author == user or user.is_authenticated
-            and user.is_admin or user.is_authenticated
-            and user.is_moderator
-
-        )
-
-
 class AdminOrReadOnly(BasePermission):
 
     def has_permission(self, request, view):
