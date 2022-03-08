@@ -111,7 +111,6 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         blank=True,
-        null=True,
         related_name='genres'
     )
     category = models.ForeignKey(
