@@ -104,7 +104,7 @@ class Genre(models.Model):
 class Title(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField('Жанр', max_length=256, unique=True)
-    year = models.IntegerField('Год выхода', null=True)
+    year = models.IntegerField('Год выхода')
     description = models.CharField(
         'Описание', max_length=512, blank=True, null=True
     )
@@ -119,6 +119,9 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         related_name='category'
     )
+
+    def __str__(self):
+        return self.name
 
 
 class Reviews(models.Model):

@@ -9,7 +9,6 @@ from rest_framework import filters
 from rest_framework.pagination import LimitOffsetPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
-from django.db.models import Avg
 
 from reviews.models import Reviews, Title, User, Genre, Category
 from api.serializers import (
@@ -21,7 +20,8 @@ from api.serializers import (
     GenreSerializer,
     CategorySerializer,
     TitlesGetSerializer,
-    UsersMeSerializer
+    UsersMeSerializer,
+    TitlesPostSerializer
 )
 from api.permissions import (
     UserPermission,
@@ -29,6 +29,7 @@ from api.permissions import (
     AdminOrReadOnly,
     AdminModeratorAuthorPermission
 )
+from .filters import TitleFilter
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
@@ -208,9 +209,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category', 'genre', 'name', 'year')
+    filterset_class = TitleFilter
 
-    def get_rating(self, obj):
-        rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
-        if not rating:
-            return rating
-        return round(rating, 1)
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PATCH',):
+            return TitlesPostSerializer
+        return TitlesGetSerializer

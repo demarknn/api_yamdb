@@ -149,6 +149,7 @@ class TitlesPostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Wrong year'
             )
+        return value
 
 
 class TitlesGetSerializer(serializers.ModelSerializer):
