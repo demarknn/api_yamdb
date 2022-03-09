@@ -30,17 +30,6 @@ class AdminPermission(BasePermission):
             return True
 
 
-class ModeratorPermission(BasePermission):
-
-    def has_permission(self, request, view):
-        if request.user.is_staff:
-            return True
-
-    def has_object_permission(self, request, view, obj):
-        if request.user.is_staff:
-            return True
-
-
 class MeUserPermission(BasePermission):
 
     def has_permission(self, request, view):
