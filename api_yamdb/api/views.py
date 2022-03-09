@@ -44,7 +44,8 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = self.get_title()
-        return title.reviews.all()
+        queryset = title.reviews.order_by('id')
+        return queryset
 
     def perform_create(self, serializer):
         title = self.get_title()
