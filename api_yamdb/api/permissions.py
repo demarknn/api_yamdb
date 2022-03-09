@@ -64,9 +64,6 @@ class AdminOrReadOnly(BasePermission):
             or request.user.is_superuser
         )
 
-    def has_object_permission(self, request, view, obj):
-        return request.user.is_superuser
-
 
 class AdminModeratorAuthorPermission(BasePermission):
     def has_permission(self, request, view):
@@ -82,3 +79,9 @@ class AdminModeratorAuthorPermission(BasePermission):
             or request.user.is_moderator
             or request.user.is_admin
         )
+
+
+class ReadOnly(BasePermission):
+
+    def has_permission(self, request, view):
+        return request.method in SAFE_METHODS
