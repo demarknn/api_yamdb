@@ -44,7 +44,7 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = self.get_title()
-        return title.reviews
+        return title.reviews.all()
 
     def perform_create(self, serializer):
         title = self.get_title()
@@ -63,7 +63,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review = self.get_review()
-        return review.comments
+        return review.comments.all()
 
     def perform_create(self, serializer):
         review = self.get_review()
