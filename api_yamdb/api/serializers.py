@@ -1,49 +1,49 @@
 import re
 import datetime as dt
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Comments, Reviews, User, Genre, Category, Title
 
 
 class ReviewsSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
-
-    class Meta:
-        fields = '__all__'
-        model = Reviews
-        read_only_field = ('title')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Reviews.objects.all(),
-                fields=('title', 'author')
-            )
-        ]
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True
+    )
 
     def validate(self, data):
-        if self.context['request'].method != 'POST':
-            return data
-
-        title_id = self.context['view'].kwargs.get('title_id')
-        author = self.context['request'].user
-        if Reviews.objects.filter(
-                author=author, title=title_id).exists():
+        request = self.context['request']
+        author = request.user
+        title_id = self.context.get('view').kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        if (
+            request.method == 'POST'
+            and Reviews.objects.filter(title=title, author=author).exists()
+        ):
             raise serializers.ValidationError(
-                'Вы уже написали отзыв к этому произведению.'
+                'Может существовать только один отзыв!'
             )
         return data
 
     def validate_score(self, value):
-        if not 1 <= value <= 10:
-            raise serializers.ValidationError(
-                'Оценкой может быть целое число в диапазоне от 1 до 10.'
-            )
+        if 0 > value > 10:
+            raise serializers.ValidationError('Оценка по 10-бальной шкале!')
         return value
+
+    class Meta:
+        fields = '__all__'
+        model = Reviews
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    review = serializers.SlugRelatedField(
+        slug_field='text',
+        read_only=True
+    )
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
@@ -51,7 +51,6 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Comments
-        read_only_field = ('review')
 
 
 class RegistrationSerializer(serializers.ModelSerializer):

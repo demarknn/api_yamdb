@@ -76,6 +76,6 @@ class AdminModeratorAuthorPermission(BasePermission):
         return (
             request.method in SAFE_METHODS
             or obj.author == request.user
-            or request.user.is_moderator
-            or request.user.is_admin
+            or request.user.is_staff
+            or request.user.is_superuser
         )

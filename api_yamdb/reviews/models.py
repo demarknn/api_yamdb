@@ -133,16 +133,21 @@ class Reviews(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     score = models.IntegerField(
-        validators=[MaxValueValidator(10), MinValueValidator(1)]
+        'оценка',
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(10)
+        ),
+        error_messages={'validators': 'Оценка от 1 до 10!'}
     )
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['title', 'author'], name='uniq')
+            models.UniqueConstraint(fields=['author', 'title'], name='uniq')
         ]
 
     def __str__(self):
-        return self.text[:15]
+        return self.text
 
 
 class Comments(models.Model):
@@ -156,4 +161,4 @@ class Comments(models.Model):
         'Дата добавления', auto_now_add=True, db_index=True)
 
     def __str__(self):
-        return self.text[:15]
+        return self.text
