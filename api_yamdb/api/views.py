@@ -10,7 +10,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 
-from reviews.models import Reviews, Title, User, Genre, Category
+from reviews.models import Review, Title, User, Genre, Category
 from api.serializers import (
     CommentSerializer,
     ReviewsSerializer,
@@ -58,7 +58,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
     ]
 
     def get_review(self):
-        review = get_object_or_404(Reviews, id=self.kwargs.get("review_id"))
+        review = get_object_or_404(Review, id=self.kwargs.get("review_id"))
         return review
 
     def get_queryset(self):

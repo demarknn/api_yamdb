@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from reviews.models import Comments, Reviews, User, Genre, Category, Title
+from reviews.models import Comment, Review, User, Genre, Category, Title
 
 
 class ReviewsSerializer(serializers.ModelSerializer):
@@ -22,7 +22,7 @@ class ReviewsSerializer(serializers.ModelSerializer):
         title = get_object_or_404(Title, id=title_id)
         if (
             request.method == 'POST'
-            and Reviews.objects.filter(title=title, author=author).exists()
+            and Review.objects.filter(title=title, author=author).exists()
         ):
             raise serializers.ValidationError(
                 'Может существовать только один отзыв!'
@@ -36,7 +36,7 @@ class ReviewsSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        model = Reviews
+        model = Review
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -50,7 +50,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        model = Comments
+        model = Comment
 
 
 class RegistrationSerializer(serializers.ModelSerializer):

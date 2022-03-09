@@ -124,7 +124,7 @@ class Title(models.Model):
         return self.name
 
 
-class Reviews(models.Model):
+class Review(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='reviews')
@@ -150,14 +150,14 @@ class Reviews(models.Model):
         return self.text
 
 
-class Comments(models.Model):
+class Comment(models.Model):
     id = models.AutoField(primary_key=True)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
     review = models.ForeignKey(
-        Reviews, on_delete=models.CASCADE, related_name='comments')
+        Review, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
     def __str__(self):
