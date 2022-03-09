@@ -3,15 +3,15 @@ import csv
 from django.conf import settings
 from django.core.management import BaseCommand
 
-from reviews.models import Category, Comments, Genre, Reviews, Title, User
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 TABLES = {
     User: 'users.csv',
     Category: 'category.csv',
     Genre: 'genre.csv',
     Title: 'titles.csv',
-    Reviews: 'review.csv',
-    Comments: 'comments.csv'
+    Review: 'review.csv',
+    Comment: 'comments.csv'
 }
 
 

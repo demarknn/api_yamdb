@@ -7,9 +7,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 ROLE_CHOICES = (
-    ('user', 'User'),
-    ('moderator', 'Moderator'),
-    ('admin', 'Admin'),
+    ('user', 'user'),
+    ('moderator', 'moderator'),
+    ('admin', 'admin'),
 )
 
 
@@ -23,10 +23,11 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email),
             confirmation_code=confirmation_code
         )
-        if role == 'admin':
-            user.is_superuser = True
         if role == 'moderator':
             user.is_staff = True
+        if role == 'admin':
+            user.is_superuser = True
+
         user.role
         user.set_password(password)
         user.bio
@@ -120,8 +121,11 @@ class Title(models.Model):
         related_name='category'
     )
 
+    def __str__(self):
+        return self.name
 
-class Reviews(models.Model):
+
+class Review(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='reviews')
@@ -130,27 +134,32 @@ class Reviews(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     score = models.IntegerField(
-        validators=[MaxValueValidator(10), MinValueValidator(1)]
+        'оценка',
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(10)
+        ),
+        error_messages={'validators': 'Оценка от 1 до 10!'}
     )
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['title', 'author'], name='uniq')
+            models.UniqueConstraint(fields=['author', 'title'], name='uniq')
         ]
 
     def __str__(self):
-        return self.text[:15]
+        return self.text
 
 
-class Comments(models.Model):
+class Comment(models.Model):
     id = models.AutoField(primary_key=True)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
     review = models.ForeignKey(
-        Reviews, on_delete=models.CASCADE, related_name='comments')
+        Review, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
     def __str__(self):
-        return self.text[:15]
+        return self.text
