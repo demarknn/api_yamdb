@@ -79,9 +79,3 @@ class AdminModeratorAuthorPermission(BasePermission):
             or request.user.is_moderator
             or request.user.is_admin
         )
-
-
-class ReadOnly(BasePermission):
-
-    def has_permission(self, request, view):
-        return request.method in SAFE_METHODS

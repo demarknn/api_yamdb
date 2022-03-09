@@ -28,7 +28,6 @@ from api.permissions import (
     AdminPermission,
     AdminOrReadOnly,
     AdminModeratorAuthorPermission,
-    ReadOnly
 )
 from .filters import TitleFilter
 
@@ -40,7 +39,7 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     ]
 
     def get_title(self):
-        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        title = get_object_or_404(Title, id=self.kwargs.get("title_id"))
         return title
 
     def get_queryset(self):
@@ -59,7 +58,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
     ]
 
     def get_review(self):
-        review = get_object_or_404(Reviews, pk=self.kwargs.get("review_id"))
+        review = get_object_or_404(Reviews, id=self.kwargs.get("review_id"))
         return review
 
     def get_queryset(self):
