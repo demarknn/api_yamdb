@@ -89,6 +89,9 @@ class Category(models.Model):
     name = models.CharField('Категория', max_length=256, unique=True)
     slug = models.SlugField('Slug', max_length=50, unique=True)
 
+    class Meta:
+        ordering = ['-id']
+
     def __str__(self):
         return str(self.name)
 
@@ -97,6 +100,9 @@ class Genre(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField('Жанр', max_length=256, unique=True)
     slug = models.SlugField('Slug', max_length=50, unique=True)
+
+    class Meta:
+        ordering = ['-id']
 
     def __str__(self):
         return str(self.name)
@@ -121,6 +127,9 @@ class Title(models.Model):
         related_name='category'
     )
 
+    class Meta:
+        ordering = ['-id']
+
     def __str__(self):
         return self.name
 
@@ -143,6 +152,7 @@ class Review(models.Model):
     )
 
     class Meta:
+        ordering = ['-id']
         constraints = [
             models.UniqueConstraint(fields=['author', 'title'], name='uniq')
         ]
@@ -160,6 +170,9 @@ class Comment(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-id']
 
     def __str__(self):
         return self.text
