@@ -27,7 +27,7 @@ from api.permissions import (
     UserPermission,
     AdminPermission,
     AdminOrReadOnly,
-    AdminModeratorAuthorPermission
+    AdminModeratorAuthorPermission,
 )
 from .filters import TitleFilter
 
