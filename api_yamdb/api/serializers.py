@@ -97,14 +97,14 @@ class GenreSerializer(serializers.ModelSerializer):
         ):
             return value
         raise serializers.ValidationError(
-            "Slug should contain only azAZ or numbers and 50 length"
+            "Slug должен состоять из латинских букв и цифр и не длиннее 50 символов"
         )
 
     def validate_name(self, value):
         if len(value) < 257:
             return value
         raise serializers.ValidationError(
-            "Name should be 256 length"
+            "Длина имени не должна превышать 256 символов"
         )
 
 
@@ -119,14 +119,14 @@ class CategorySerializer(serializers.ModelSerializer):
         ):
             return value
         raise serializers.ValidationError(
-            "Slug should contain only azAZ or numbers and 50 length"
+            "Slug должен состоять из латинских букв и цифр и не длиннее 50 символов"
         )
 
     def validate_name(self, value):
         if len(value) < 257:
             return value
         raise serializers.ValidationError(
-            "Name should be 256 length"
+            "Длина имени не должна превышать 256 символов"
         )
 
 
@@ -146,7 +146,7 @@ class TitlesPostSerializer(serializers.ModelSerializer):
     def validate_year(self, value):
         if dt.date.today().year < value:
             raise serializers.ValidationError(
-                'Wrong year'
+                'Неправильно указан год'
             )
         return value
 
