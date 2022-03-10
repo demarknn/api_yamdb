@@ -86,48 +86,34 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ['username', 'confirmation_code']
 
 
-class GenreSerializer(serializers.ModelSerializer):
+class ValidateSlugNameSerializer(serializers.ModelSerializer):
+    def validate_slug(self, value):
+        if (
+            re.match('^[-a-zA-Z0-9_]+$', value) is not None and len(value) < 51
+        ):
+            return value
+        raise serializers.ValidationError(
+            "Slug должен состоять из латинских букв и цифр и не длиннее 50 символов"
+        )
+
+    def validate_name(self, value):
+        if len(value) < 257:
+            return value
+        raise serializers.ValidationError(
+            "Длина имени не должна превышать 256 символов"
+        )
+
+
+class GenreSerializer(ValidateSlugNameSerializer):
     class Meta:
         model = Genre
         fields = ('name', 'slug')
 
-    def validate_slug(self, value):
-        if (
-            re.match('^[-a-zA-Z0-9_]+$', value) is not None and len(value) < 51
-        ):
-            return value
-        raise serializers.ValidationError(
-            "Slug должен состоять из латинских букв и цифр и не длиннее 50 символов"
-        )
 
-    def validate_name(self, value):
-        if len(value) < 257:
-            return value
-        raise serializers.ValidationError(
-            "Длина имени не должна превышать 256 символов"
-        )
-
-
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(ValidateSlugNameSerializer):
     class Meta:
         model = Category
         fields = ('name', 'slug')
-
-    def validate_slug(self, value):
-        if (
-            re.match('^[-a-zA-Z0-9_]+$', value) is not None and len(value) < 51
-        ):
-            return value
-        raise serializers.ValidationError(
-            "Slug должен состоять из латинских букв и цифр и не длиннее 50 символов"
-        )
-
-    def validate_name(self, value):
-        if len(value) < 257:
-            return value
-        raise serializers.ValidationError(
-            "Длина имени не должна превышать 256 символов"
-        )
 
 
 class TitlesPostSerializer(serializers.ModelSerializer):
@@ -144,7 +130,7 @@ class TitlesPostSerializer(serializers.ModelSerializer):
         model = Title
 
     def validate_year(self, value):
-        if dt.date.today().year < value:
+        if dt.date.today().year < value and value > 0:
             raise serializers.ValidationError(
                 'Неправильно указан год'
             )
