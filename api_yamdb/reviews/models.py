@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+from .validators import validate_year
 
 ROLE_CHOICES = (
     ('user', 'user'),
@@ -111,7 +112,7 @@ class Genre(models.Model):
 class Title(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField('Жанр', max_length=256, unique=True)
-    year = models.IntegerField('Год выхода', null=True)
+    year = models.IntegerField('Год выхода', null=True, validators=[validate_year])
     description = models.CharField(
         'Описание', max_length=512, blank=True, null=True
     )
