@@ -6,12 +6,12 @@ from django.core.management import BaseCommand
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 TABLES = {
-    User: 'users.csv',
     Category: 'category.csv',
     Genre: 'genre.csv',
-    Title: 'titles.csv',
     Review: 'review.csv',
-    Comment: 'comments.csv'
+    User: 'users.csv',
+    Title: 'titles.csv',
+    Comment: 'comments.csv',
 }
 
 

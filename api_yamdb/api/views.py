@@ -2,13 +2,15 @@ from rest_framework import viewsets, mixins, filters
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from rest_framework import filters
 from rest_framework.pagination import LimitOffsetPagination
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from rest_framework.decorators import action
+from rest_framework.decorators import api_view, permission_classes
 
 from reviews.models import Review, Title, User, Genre, Category
 from api.serializers import (
@@ -71,43 +73,13 @@ class CommentsViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, review=review)
 
 
-class RegistrationAPIView(APIView):
-    permission_classes = (AllowAny,)
-    serializer_class = RegistrationSerializer
-
-    def post(self, request):
-        user = request.data
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class LoginView(APIView):
-    serializer_class = LoginSerializer
-    permission_classes = (AllowAny,)
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if not serializer.is_valid():
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        username = serializer.data['username']
-        user = get_object_or_404(User, username=username)
-        confirmation_code = serializer.data['confirmation_code']
-        if user.confirmation_code != confirmation_code:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        },
-            status=status.HTTP_200_OK)
+def send_code(user):
+    send_mail(
+        user.username,
+        user.confirmation_code,
+        'from@yamdb.ru',
+        [user.email],
+    )
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -136,28 +108,50 @@ class UsersViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UsersMeViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UsersMeSerializer
-    permission_classes = [AdminPermission, ]
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
-    search_fields = ('username',)
-    lookup_field = 'username'
-    pagination_class = LimitOffsetPagination
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def signup(request):
+    serializer = RegistrationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = serializer.save()
+    user.confirmation_code = default_token_generator.make_token(user)
+    send_code(user)
+    user.save()
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['GET', 'PATCH'], url_path='me',
-            permission_classes=(UserPermission,))
-    def me(self, request):
-        userself = User.objects.get(username=self.request.user)
-        if request.method == 'GET':
-            serializer = self.get_serializer(userself)
-            return Response(serializer.data)
-        if request.method == 'PATCH':
-            serializer = self.get_serializer(userself, data=request.data,
-                                             partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def code_recovery(request):
+    username = request.POST.get('username')
+    email = request.POST.get('email')
+    user = get_object_or_404(User, username=username, email=email)
+    user.confirmation_code = default_token_generator.make_token(user)
+    user.save()
+    send_code(user)
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def token(request):
+    serializer_class = LoginSerializer
+    serializer = serializer_class(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    username = serializer.validated_data['username']
+    user = get_object_or_404(User, username=username)
+    confirmation_code = serializer.validated_data['confirmation_code']
+    if user.confirmation_code != confirmation_code:
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    },
+        status=status.HTTP_200_OK)
 
 
 class GenreViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
