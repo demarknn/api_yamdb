@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg
 from rest_framework import filters
 from rest_framework.pagination import LimitOffsetPagination
 from django_filters.rest_framework import DjangoFilterBackend
@@ -154,37 +155,35 @@ def token(request):
         status=status.HTTP_200_OK)
 
 
-class GenreViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
+class DeleteCreateListRetrieveGenericViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
                    mixins.ListModelMixin, mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
+
+
+class GenreViewSet(DeleteCreateListRetrieveGenericViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (AdminOrReadOnly,)
 
     @action(
         detail=False, methods=['delete'],
         url_path=r'(?P<slug>\w+)',
-        lookup_field='slug', url_name='category_slug'
+        lookup_field='slug', url_name='genre_slug'
     )
     def get_genre(self, request, slug):
-        category = self.get_object()
-        serializer = CategorySerializer(category)
-        category.delete()
+        genre = self.get_object()
+        serializer = GenreSerializer(genre)
+        genre.delete()
         return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
 
 
-class CategoryViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
-                      mixins.ListModelMixin, mixins.RetrieveModelMixin,
-                      viewsets.GenericViewSet):
+class CategoryViewSet(DeleteCreateListRetrieveGenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (AdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
     @action(
         detail=False, methods=['delete'],
@@ -199,7 +198,7 @@ class CategoryViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitlesGetSerializer
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)

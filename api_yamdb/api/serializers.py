@@ -30,7 +30,7 @@ class ReviewsSerializer(serializers.ModelSerializer):
         return data
 
     def validate_score(self, value):
-        if 0 <= value <= 10:
+        if not 1 <= value <= 10:
             raise serializers.ValidationError('Оценка по 10-бальной шкале!')
         return value
 
@@ -83,48 +83,34 @@ class LoginSerializer(serializers.Serializer):
         fields = ['username', 'confirmation_code']
 
 
-class GenreSerializer(serializers.ModelSerializer):
+class ValidateSlugNameSerializer(serializers.ModelSerializer):
+    def validate_slug(self, value):
+        if (
+            re.match('^[-a-zA-Z0-9_]+$', value) is not None and len(value) < 51
+        ):
+            return value
+        raise serializers.ValidationError(
+            "Slug должен состоять из латинских букв и цифр и не длиннее 50 символов"
+        )
+
+    def validate_name(self, value):
+        if len(value) < 257:
+            return value
+        raise serializers.ValidationError(
+            "Длина имени не должна превышать 256 символов"
+        )
+
+
+class GenreSerializer(ValidateSlugNameSerializer):
     class Meta:
         model = Genre
         fields = ('name', 'slug')
 
-    def validate_slug(self, value):
-        if (
-            re.match('^[-a-zA-Z0-9_]+$', value) is not None and len(value) < 51
-        ):
-            return value
-        raise serializers.ValidationError(
-            "Slug should contain only azAZ or numbers and 50 length"
-        )
 
-    def validate_name(self, value):
-        if len(value) < 257:
-            return value
-        raise serializers.ValidationError(
-            "Name should be 256 length"
-        )
-
-
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(ValidateSlugNameSerializer):
     class Meta:
         model = Category
         fields = ('name', 'slug')
-
-    def validate_slug(self, value):
-        if (
-            re.match('^[-a-zA-Z0-9_]+$', value) is not None and len(value) < 51
-        ):
-            return value
-        raise serializers.ValidationError(
-            "Slug should contain only azAZ or numbers and 50 length"
-        )
-
-    def validate_name(self, value):
-        if len(value) < 257:
-            return value
-        raise serializers.ValidationError(
-            "Name should be 256 length"
-        )
 
 
 class TitlesPostSerializer(serializers.ModelSerializer):
@@ -141,9 +127,9 @@ class TitlesPostSerializer(serializers.ModelSerializer):
         model = Title
 
     def validate_year(self, value):
-        if dt.date.today().year < value:
+        if dt.date.today().year < value and value > 0:
             raise serializers.ValidationError(
-                'Wrong year'
+                'Неправильно указан год'
             )
         return value
 
@@ -151,18 +137,12 @@ class TitlesPostSerializer(serializers.ModelSerializer):
 class TitlesGetSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField()
 
     class Meta():
         fields = '__all__'
         read_only_fields = ('id',)
         model = Title
-
-    def get_rating(self, obj):
-        rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
-        if not rating:
-            return rating
-        return round(rating, 1)
 
 
 class UsersSerializer(serializers.ModelSerializer):
