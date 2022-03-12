@@ -155,9 +155,13 @@ def token(request):
         status=status.HTTP_200_OK)
 
 
-class DeleteCreateListRetrieveGenericViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin,
-                   mixins.ListModelMixin, mixins.RetrieveModelMixin,
-                   viewsets.GenericViewSet):
+class DeleteCreateListRetrieveGenericViewSet(
+        mixins.CreateModelMixin,
+        mixins.DestroyModelMixin,
+        mixins.ListModelMixin,
+        mixins.RetrieveModelMixin,
+        viewsets.GenericViewSet
+):
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
@@ -198,7 +202,8 @@ class CategoryViewSet(DeleteCreateListRetrieveGenericViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).order_by('-id')
     serializer_class = TitlesGetSerializer
     permission_classes = (AdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)

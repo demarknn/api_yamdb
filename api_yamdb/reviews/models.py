@@ -5,6 +5,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 from .validators import validate_year
 
+
 class UserRole:
     USER = 'user'
     ADMIN = 'admin'
@@ -163,8 +164,8 @@ class Review(models.Model):
     score = models.IntegerField(
         verbose_name='оценка',
         validators=(
-            MinValueValidator(1),
-            MaxValueValidator(10)
+            MinValueValidator(1, message='Оценка не может быть меньше 1'),
+            MaxValueValidator(10, message='Оценка не может быть больше 10')
         ),
         error_messages={'validators': 'Оценка от 1 до 10!'}
     )

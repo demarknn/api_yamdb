@@ -1,6 +1,5 @@
 import re
 import datetime as dt
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
@@ -90,7 +89,7 @@ class ValidateSlugNameSerializer(serializers.ModelSerializer):
         ):
             return value
         raise serializers.ValidationError(
-            "Slug должен состоять из латинских букв и цифр и не длиннее 50 символов"
+            "Slug должен состоять из латинских букв и не длиннее 50 символов"
         )
 
     def validate_name(self, value):
