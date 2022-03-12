@@ -59,9 +59,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['email', 'username']
 
-    def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
-
     def validate_username(self, value):
         if 'me' == value.lower():
             raise serializers.ValidationError(
@@ -77,7 +74,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return value
 
 
-class LoginSerializer(serializers.ModelSerializer):
+class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     confirmation_code = serializers.CharField(required=True)
 

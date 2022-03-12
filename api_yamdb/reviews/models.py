@@ -1,88 +1,86 @@
-import random
 from django.contrib.auth.models import (
     AbstractUser, BaseUserManager, PermissionsMixin)
-from django.core.mail import send_mail
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from .validators import validate_year
 
-ROLE_CHOICES = (
-    ('user', 'user'),
-    ('moderator', 'moderator'),
-    ('admin', 'admin'),
-)
+class UserRole:
+    USER = 'user'
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+    ROLE_CHOICES = [
+        (USER, 'user'),
+        (ADMIN, 'admin'),
+        (MODERATOR, 'moderator'),
+    ]
 
 
 class UserManager(BaseUserManager):
 
     def create_user(
             self, username, email, password=None, role=None, bio=None):
-        confirmation_code = str(random.randint(1000, 9999))
         user = self.model(
             username=username,
             email=self.normalize_email(email),
-            confirmation_code=confirmation_code
         )
-        if role == 'moderator':
+        if role == UserRole.MODERATOR:
             user.is_staff = True
-        if role == 'admin':
+        if role == UserRole.ADMIN:
             user.is_superuser = True
-
         user.role
         user.set_password(password)
         user.bio
         user.save()
-        send_mail(
-            username,
-            confirmation_code,
-            'from@yamdb.ru',
-            [email],
-        )
         return user
 
     def create_superuser(
             self, username, email, password=None, role=None, bio=None):
-        confirmation_code = str(random.randint(1000, 9999))
         user = self.model(
             username=username,
             email=self.normalize_email(email),
-            confirmation_code=confirmation_code
         )
         user.role
         user.set_password(password)
         user.bio
         user.is_superuser = True
         user.save()
-        send_mail(
-            username,
-            confirmation_code,
-            'from@yamdb.ru',
-            [email],
-        )
         return user
 
 
 class User(AbstractUser, PermissionsMixin):
     role = models.CharField(
-        max_length=20, choices=ROLE_CHOICES, default='user'
+        max_length=20, choices=UserRole.ROLE_CHOICES,
+        default=UserRole.USER, verbose_name='Роль'
     )
-    password = models.CharField(max_length=200, default='password')
-    bio = models.TextField(blank=True)
-    username = models.CharField(max_length=255, unique=True)
-    email = models.EmailField(unique=True)
-    confirmation_code = models.CharField(max_length=10, default='0000')
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    password = models.CharField(
+        max_length=200,
+        default='password',
+        verbose_name='Пароль'
+    )
+    bio = models.TextField(blank=True, verbose_name='Биография')
+    username = models.CharField(
+        max_length=255,
+        unique=True,
+        verbose_name='Имя'
+    )
+    email = models.EmailField(unique=True, verbose_name='Электронная почта')
+    confirmation_code = models.CharField(
+        max_length=20,
+        default='0000',
+        verbose_name='Код подтверждения'
+    )
     is_superuser = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
     objects = UserManager()
 
     def __str__(self):
         return self.username
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
 
 class Category(models.Model):
