@@ -147,11 +147,10 @@ def token(request):
         status=status.HTTP_200_OK)
 
 
-class DeleteCreateListRetrieveGenericViewSet(
+class DeleteCreateListGenericViewSet(
         mixins.CreateModelMixin,
         mixins.DestroyModelMixin,
         mixins.ListModelMixin,
-        mixins.RetrieveModelMixin,
         viewsets.GenericViewSet
 ):
     permission_classes = (AdminOrReadOnly,)
@@ -160,37 +159,15 @@ class DeleteCreateListRetrieveGenericViewSet(
     lookup_field = 'slug'
 
 
-class GenreViewSet(DeleteCreateListRetrieveGenericViewSet):
+class GenreViewSet(DeleteCreateListGenericViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (AdminOrReadOnly,)
 
-    @action(
-        detail=False, methods=['delete'],
-        url_path=r'(?P<slug>\w+)',
-        lookup_field='slug', url_name='genre_slug'
-    )
-    def get_genre(self, request, slug):
-        genre = self.get_object()
-        serializer = GenreSerializer(genre)
-        genre.delete()
-        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
 
-
-class CategoryViewSet(DeleteCreateListRetrieveGenericViewSet):
+class CategoryViewSet(DeleteCreateListGenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-
-    @action(
-        detail=False, methods=['delete'],
-        url_path=r'(?P<slug>\w+)',
-        lookup_field='slug', url_name='category_slug'
-    )
-    def get_category(self, request, slug):
-        category = self.get_object()
-        serializer = CategorySerializer(category)
-        category.delete()
-        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
