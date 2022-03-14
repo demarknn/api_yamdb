@@ -117,11 +117,11 @@ def signup(request):
     username = serializer.validated_data['username']
     email = serializer.validated_data['email']
     try:
-        user = User.objects.get_or_create(username=username, email=email)
+        user, _ = User.objects.get_or_create(username=username, email=email)
     except Exception:
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-    user[0].confirmation_code = default_token_generator.make_token(user[0])
-    send_code(user[0])
+    user.confirmation_code = default_token_generator.make_token(user)
+    send_code(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
