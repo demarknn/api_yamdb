@@ -1,9 +1,10 @@
 from rest_framework.permissions import (
     BasePermission, SAFE_METHODS)
+
 from reviews.models import UserRole
 
 
-class UserPermission(BasePermission):
+class AdminAuthorOrReadOnly(BasePermission):
 
     def has_permission(self, request, view):
         return (

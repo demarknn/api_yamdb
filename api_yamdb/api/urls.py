@@ -1,7 +1,8 @@
 from rest_framework.routers import SimpleRouter
 from django.urls import include, path
+
 from .views import (
-    ReviewsViewSet, CommentsViewSet, signup, code_recovery,
+    ReviewsViewSet, CommentsViewSet, signup,
     token, UsersViewSet, CategoryViewSet, GenreViewSet, TitleViewSet
 )
 
@@ -29,5 +30,4 @@ urlpatterns = [
     path('v1/', include(v1_router.urls)),
     path('v1/auth/signup/', signup, name='signup'),
     path('v1/auth/token/', token, name='token'),
-    path('v1/auth/code_recovery/', code_recovery, name='code_recovery'),
 ]

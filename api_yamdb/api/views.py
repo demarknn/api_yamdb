@@ -27,7 +27,7 @@ from api.serializers import (
     TitlesPostSerializer
 )
 from api.permissions import (
-    UserPermission,
+    AdminAuthorOrReadOnly,
     AdminPermission,
     AdminOrReadOnly,
     AdminModeratorAuthorPermission,
@@ -88,12 +88,12 @@ class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UsersSerializer
     permission_classes = [AdminPermission, ]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, )
-    search_fields = ('username',)
+    search_fields = ('username', )
     lookup_field = 'username'
     pagination_class = LimitOffsetPagination
 
     @action(detail=False, methods=['GET', 'PATCH'], url_path='me',
-            permission_classes=(UserPermission,))
+            permission_classes=(AdminAuthorOrReadOnly,))
     def me(self, request):
         serializer = UsersMeSerializer(request.user)
         userself = User.objects.get(username=self.request.user)
@@ -114,23 +114,15 @@ class UsersViewSet(viewsets.ModelViewSet):
 def signup(request):
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user = serializer.save()
-    user.confirmation_code = default_token_generator.make_token(user)
-    send_code(user)
-    user.save()
+    username = serializer.validated_data['username']
+    email = serializer.validated_data['email']
+    try:
+        user = User.objects.get_or_create(username=username, email=email)
+    except Exception:
+        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+    user[0].confirmation_code = default_token_generator.make_token(user[0])
+    send_code(user[0])
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def code_recovery(request):
-    username = request.POST.get('username')
-    email = request.POST.get('email')
-    user = get_object_or_404(User, username=username, email=email)
-    user.confirmation_code = default_token_generator.make_token(user)
-    user.save()
-    send_code(user)
-    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

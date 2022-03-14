@@ -52,7 +52,9 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
 
 
-class RegistrationSerializer(serializers.ModelSerializer):
+class RegistrationSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
 
     class Meta:
         model = User
@@ -64,12 +66,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 "Нельзя создавать пользователя ME"
             )
         if value == '':
-            raise serializers.ValidationError("Нужно все заполнить")
+            raise serializers.ValidationError("Нужно заполнить имя")
         return value
 
     def validate_email(self, value):
         if value == '':
-            raise serializers.ValidationError("Нужно все заполнить")
+            raise serializers.ValidationError("Нужно заполнить почту")
         return value
 
 
